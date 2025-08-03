@@ -1,0 +1,51 @@
+#ifndef ASCC_ARENA_H
+#define ASCC_ARENA_H
+
+#include <stdalign.h>
+#include <stddef.h>
+
+// Single chunk in the arena
+typedef struct arena_chunk {
+  char *region;             // pointer to allocated memory block
+  size_t size;              // total size of the block in bytes
+  size_t index;             // current allocation offset in the block
+  struct arena_chunk *next; // pointer to next chunk
+} arenaChunk_t;
+
+// Arena structure managing multiple chunks
+typedef struct arena {
+  arenaChunk_t *head; // head chunk of the linked list
+  arenaChunk_t *curr; // current chunk used for allocations
+  size_t chunkSize;   // preferred chunk size for new allocations
+} arena_t;
+
+// Initializes an arena with default chunk size.
+// Returns pointer to new arena or NULL on failure.
+arena_t *init_arena(void);
+
+// Expands the arena by adding a new chunk with at least newSize bytes.
+void expand_arena(arena_t *a, size_t newSize);
+
+// Resets arena allocations to zero but keeps allocated memory intact.
+void clear_arena(arena_t *a);
+
+// Frees all memory used by the arena and resets it.
+void free_arena(arena_t *a);
+
+// Copies contents from src arena to dst arena.
+// Returns number of bytes copied.
+size_t copy_arena(arena_t *dst, const arena_t *src);
+
+// Allocates memory of sizeOfElement bytes aligned to alignmentOfElement from
+// arena. Returns pointer to allocated memory or NULL if allocation fails.
+void *arena_alloc(arena_t *a, size_t alignmentOfElement, size_t sizeOfElement);
+
+// Convenience macros to allocate objects or arrays from arena with correct
+// alignment.
+#define ARENA_ALLOC_OBJ(arena_ptr, Type)                                       \
+  (Type *)arena_alloc((arena_ptr), alignof(Type), sizeof(Type))
+
+#define ARENA_ALLOC_ARRAY(arena_ptr, Type, Count)                              \
+  (Type *)arena_alloc((arena_ptr), alignof(Type), sizeof(Type) * (Count))
+
+#endif
