@@ -22,18 +22,23 @@ static _arena_chunk *alloc_chunk(size_t size) {
   return chunk;
 }
 
-arena *init_arena() {
+void init_arena(arena *a) {
   size_t size = sysconf(_SC_PAGESIZE);
   if (size == 0)
-    return NULL;
+    return;
 
-  arena *a = malloc(sizeof(arena));
-  assert(a != NULL);
+  assert(a);
 
   _arena_chunk *chunk = alloc_chunk(size);
   a->head = chunk;
   a->curr = chunk;
   a->chunkSize = size;
+}
+
+arena *new_arena() {
+  arena *a = malloc(sizeof(arena));
+
+  init_arena(a);
 
   return a;
 }
@@ -49,6 +54,11 @@ void clear_arena(arena *a) {
   a->curr = a->head;
 }
 
+void destroy_arena(arena *a) {
+  free_arena(a);
+  free(a);
+}
+
 void free_arena(arena *a) {
   if (!a)
     return;
@@ -60,8 +70,6 @@ void free_arena(arena *a) {
     free(chunk);
     chunk = next;
   }
-
-  free(a);
 }
 
 size_t copy_arena(arena *dst, const arena *src) {

@@ -23,8 +23,11 @@ struct _arena {
 };
 
 // Initializes an arena with default chunk size.
+void init_arena(arena *a);
+
+// Initializes an arena with default chunk size.
 // Returns pointer to new arena or NULL on failure.
-arena *init_arena(void);
+arena *new_arena();
 
 // Expands the arena by adding a new chunk with at least newSize bytes.
 void expand_arena(arena *a, size_t newSize);
@@ -32,8 +35,12 @@ void expand_arena(arena *a, size_t newSize);
 // Resets arena allocations to zero but keeps allocated memory intact.
 void clear_arena(arena *a);
 
-// Frees all memory used by the arena and resets it.
+// Frees all memory used by the arena. (When using init_arena)
 void free_arena(arena *a);
+
+// Fress all memory used by the arena and frees arena ptr itself (when using
+// new_arena)
+void destroy_arena(arena *a);
 
 // Copies contents from src arena to dst arena.
 // Returns number of bytes copied.
