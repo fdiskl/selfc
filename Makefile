@@ -3,7 +3,7 @@ CFLAGS := -Wall -Wextra
 
 SRC := $(wildcard src/*.c)
 OBJ := $(patsubst src/%.c, build/%.o, $(SRC))
-BIN := build/bin/cc
+BIN := build/bin/ascc
 
 .PHONY: all clean
 
