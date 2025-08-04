@@ -10,6 +10,8 @@ typedef struct _lexer lexer;
 // returns 1 if token was found, 0 if not tokens left (EOF)
 int scan(lexer *l, token *t);
 
+void print_token(token *t);
+
 void init_lexer(lexer *l, FILE *f);
 
 struct _lexer {

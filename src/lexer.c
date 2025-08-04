@@ -161,5 +161,48 @@ int scan(lexer *l, token *t) {
   }
 
   t->pos_end = l->pos - 1;
-  return 0;
+  return 1;
+}
+
+const char *token_name(int tok) {
+  switch (tok) {
+  case T_IDENT:
+    return "T_IDENT";
+  case T_INTLIT:
+    return "T_INTLIT";
+  case T_INT:
+    return "T_INT";
+  case T_RETURN:
+    return "T_RETURN";
+  case T_VOID:
+    return "T_VOID";
+  case T_LPAREN:
+    return "T_LPAREN";
+  case T_RPAREN:
+    return "T_RPAREN";
+  case T_LBRACE:
+    return "T_LBRACE";
+  case T_RBRACE:
+    return "T_RBRACE";
+  case T_SEMI:
+    return "T_SEMI";
+  default:
+    return "UNKNOWN";
+  }
+}
+
+void print_token(token *t) {
+  printf("Token: %-10s (line %d, col %d-%d)", token_name(t->token), t->line,
+         t->pos_start, t->pos_end);
+
+  switch (t->token) {
+  case T_IDENT:
+    printf(" value: %s", t->v.ident);
+    break;
+  case T_INTLIT:
+    printf(" value: %d", t->v.intval);
+    break;
+  }
+
+  printf("\n");
 }
