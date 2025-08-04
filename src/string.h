@@ -6,7 +6,7 @@
 typedef const char *string;
 
 // global string arena, should be initialized before any 'new_string' invocation
-extern arena *string_arena;
+extern arena string_arena;
 
 // Returns a read-only string stored in a global string arena.
 // The returned string must not be freed or modified.
