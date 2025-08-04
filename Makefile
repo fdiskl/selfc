@@ -19,3 +19,6 @@ build/%.o: src/%.c
 
 clean:
 	rm -rf build bin
+
+get-tests:
+    git clone https://github.com/nlsandler/writing-a-c-compiler-tests --depth=1 tests
