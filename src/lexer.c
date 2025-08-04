@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+void init_lexer(lexer *l, FILE *f) {
+  l->line = 1;
+  l->pos = 0;
+  l->putback = 0;
+  l->f = f;
+}
+
 char ident_buf[MAX_IDENT_LEN + 1];
 
 // get next char from input string
