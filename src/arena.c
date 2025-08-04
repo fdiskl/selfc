@@ -27,8 +27,6 @@ void init_arena(arena *a) {
   if (size == 0)
     return;
 
-  assert(a);
-
   _arena_chunk *chunk = alloc_chunk(size);
   a->head = chunk;
   a->curr = chunk;
@@ -37,6 +35,7 @@ void init_arena(arena *a) {
 
 arena *new_arena() {
   arena *a = malloc(sizeof(arena));
+  assert(a != NULL);
 
   init_arena(a);
 
