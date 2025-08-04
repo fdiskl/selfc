@@ -45,9 +45,8 @@ static void putback(lexer *l, char c) {
 static int skip_whitespaces(lexer *l) {
   char c;
 
-  c = next(l);
-
-  while (1)
+  while (1) {
+    c = next(l);
     switch (c) {
     case ' ':
     case '\t':
@@ -56,11 +55,9 @@ static int skip_whitespaces(lexer *l) {
     case '\f':
       break;
     default:
-      goto stop;
+      return c;
     }
-
-stop:
-  return c;
+  }
 }
 
 // return pos of character c in string s, or -1 if not found
@@ -108,11 +105,17 @@ static int scan_ident(lexer *l, char c, char *buf, int buf_len) {
 static int keyword(char *buf) {
   switch (*buf) {
   case 'i':
-    return T_INT;
+    if (strcmp(buf, "int") == 0)
+      return T_INT;
+    break;
   case 'r':
-    return T_RETURN;
+    if (strcmp(buf, "return") == 0)
+      return T_RETURN;
+    break;
   case 'v':
-    return T_VOID;
+    if (strcmp(buf, "void") == 0)
+      return T_VOID;
+    break;
   }
 
   return 0;
@@ -141,6 +144,9 @@ int scan(lexer *l, token *t) {
   case '}':
     t->token = T_RBRACE;
     break;
+  case ';':
+    t->token = T_SEMI;
+    break;
   default:
     if (isdigit(c)) {
       t->v.intval = scan_int(l, c);
@@ -154,9 +160,10 @@ int scan(lexer *l, token *t) {
 
       t->token = T_IDENT;
       t->v.ident = new_string(ident_buf);
+      break;
     }
 
-    fprintf(stderr, "unrecognised char %c on line %d", c, l->line);
+    fprintf(stderr, "unrecognised char %c on line %d\n", c, l->line);
     exit(1);
   }
 
