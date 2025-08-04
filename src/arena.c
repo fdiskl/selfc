@@ -7,8 +7,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-static struct arena_chunk *alloc_chunk(size_t size) {
-  struct arena_chunk *chunk = malloc(sizeof(struct arena_chunk));
+static _arena_chunk *alloc_chunk(size_t size) {
+  _arena_chunk *chunk = malloc(sizeof(_arena_chunk));
   assert(chunk != NULL);
 
   chunk->region =
@@ -22,15 +22,15 @@ static struct arena_chunk *alloc_chunk(size_t size) {
   return chunk;
 }
 
-struct arena *init_arena() {
+arena *init_arena() {
   size_t size = sysconf(_SC_PAGESIZE);
   if (size == 0)
     return NULL;
 
-  struct arena *a = malloc(sizeof(struct arena));
+  arena *a = malloc(sizeof(arena));
   assert(a != NULL);
 
-  struct arena_chunk *chunk = alloc_chunk(size);
+  _arena_chunk *chunk = alloc_chunk(size);
   a->head = chunk;
   a->curr = chunk;
   a->chunkSize = size;
@@ -38,24 +38,24 @@ struct arena *init_arena() {
   return a;
 }
 
-void clear_arena(struct arena *a) {
+void clear_arena(arena *a) {
   if (!a)
     return;
 
-  for (struct arena_chunk *chunk = a->head; chunk; chunk = chunk->next) {
+  for (_arena_chunk *chunk = a->head; chunk; chunk = chunk->next) {
     chunk->index = 0;
   }
 
   a->curr = a->head;
 }
 
-void free_arena(struct arena *a) {
+void free_arena(arena *a) {
   if (!a)
     return;
 
-  struct arena_chunk *chunk = a->head;
+  _arena_chunk *chunk = a->head;
   while (chunk) {
-    struct arena_chunk *next = chunk->next;
+    _arena_chunk *next = chunk->next;
     munmap(chunk->region, chunk->size); // free mmap region
     free(chunk);
     chunk = next;
@@ -64,16 +64,16 @@ void free_arena(struct arena *a) {
   free(a);
 }
 
-size_t copy_arena(struct arena *dst, const struct arena *src) {
+size_t copy_arena(arena *dst, const arena *src) {
   if (!dst || !src)
     return 0;
 
-  struct arena_chunk *srcChunk = src->head;
-  struct arena_chunk **dstLink = &dst->head;
+  _arena_chunk *srcChunk = src->head;
+  _arena_chunk **dstLink = &dst->head;
   size_t totalCopied = 0;
 
   while (srcChunk) {
-    struct arena_chunk *dstChunk = *dstLink;
+    _arena_chunk *dstChunk = *dstLink;
     if (!dstChunk) {
       dstChunk = alloc_chunk(dst->chunkSize);
       *dstLink = dstChunk;
@@ -98,7 +98,7 @@ size_t copy_arena(struct arena *dst, const struct arena *src) {
   return totalCopied;
 }
 
-void *arena_alloc(struct arena *a, size_t alignment, size_t size) {
+void *arena_alloc(arena *a, size_t alignment, size_t size) {
   if (!a || size == 0)
     return NULL;
 
@@ -114,7 +114,7 @@ void *arena_alloc(struct arena *a, size_t alignment, size_t size) {
     return NULL;
   }
 
-  struct arena_chunk *chunk = a->curr;
+  _arena_chunk *chunk = a->curr;
 
   while (chunk) {
     uintptr_t base = (uintptr_t)((char *)chunk->region + chunk->index);
